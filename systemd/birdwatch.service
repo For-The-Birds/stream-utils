@@ -1,0 +1,11 @@
+[Unit]
+Description=Bird feeder live stream
+
+[Service]
+ExecStart=/bin/bash stream.sh
+KillSignal=SIGINT
+WorkingDirectory=/home/birds/birdvid
+SyslogIdentifier=birdstream
+
+[Install]
+WantedBy=default.target

@@ -1,4 +1,4 @@
-set -uvx
+set -uv
 
 lx() {
     printf "%.2f" $(curl -s livingroom.local/sensor/livingroom_illuminance | jq '.value') || true
@@ -30,7 +30,7 @@ donations_format() {
 
 while true; do
     t=$(curl -s livingroom.local/sensor/outside | jq '.state' | tr -d '"')
-    label="$(date +%R)  $t  $(lx) lux"
+    label="$(date '+%F %R')  $t  $(lx) lux"
     echo -e "\n$label"
     gm convert -background none -font /usr/share/fonts/liberation/LiberationSerif-Regular.ttf \
         -pointsize 32 -fill 'rgba(64,64,64,100)' \

@@ -2,7 +2,7 @@
 Description=raspivid 720p50 at tcp 3333
 
 [Service]
-ExecStart=/opt/vc/bin/raspivid -v -n -t 0 -w 1280 -h 720 -fps 50 -g 100 -b 4500000 --ISO 400 -ev 8 -l -o tcp://0.0.0.0:3333/
+ExecStart=/opt/vc/bin/raspivid -v -n -t 0 -w 1280 -h 720 -fps 50 -g 100 -b 4500000 -ih -stm --ISO 400 -ev 4 -l -o tcp://0.0.0.0:3333/
 Restart=always
 StartLimitIntervalSec=0
 SyslogIdentifier=raspivid
