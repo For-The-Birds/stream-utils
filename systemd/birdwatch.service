@@ -1,0 +1,11 @@
+[Unit]
+Description=Bird feeder live stream
+
+[Service]
+ExecStart=/bin/bash stream.sh
+KillSignal=SIGINT
+WorkingDirectory=/src/yekm/stream-utils
+SyslogIdentifier=birdstream
+
+[Install]
+WantedBy=default.target

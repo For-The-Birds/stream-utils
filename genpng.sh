@@ -9,7 +9,7 @@ seconds_file_modified() {
 }
 
 donations() {
-    token=$(cat token.json | jq '.access_token' | tr -d \")
+    token=$(cat .token.json | jq '.access_token' | tr -d \")
 
     curl -s --max-time 4 -X GET https://www.donationalerts.com/api/v1/alerts/donations \
         -H "Authorization: Bearer $token"
@@ -38,12 +38,13 @@ while true; do
 
     #echo $(donations | jq '.data[] | (.username, .amount)')
     d=$(donations_format)
-    (( $? )) || echo "$d" | tee donations_text
+    (( $? )) || echo "$d" > donations_text
     if ! diff -q donations_text donations_text.old; then
         gm convert -size 300x400 -background transparent -fill 'rgba(64,128,64,100)' \
             -font /usr/share/fonts/liberation/LiberationSerif-Regular.ttf \
             -pointsize 24 caption:"$d" donation.png
         mv donations_text donations_text.old
+        echo "donation $(<donations_text.old)"
     fi
     if [ $(seconds_file_modified donations_text.old) -le 600 ] ; then
         gm montage info.png donation.png -background transparent -tile 1x2 -geometry +0+0 overlay_d.png
