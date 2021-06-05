@@ -1,0 +1,15 @@
+[Unit]
+Description=stream util %I
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+ExecStart=/bin/bash %i
+KillSignal=SIGINT
+WorkingDirectory=/src/yekm/stream-utils
+SyslogIdentifier=streamutil@%i
+Restart=always
+RestartSec=4
+
+[Install]
+WantedBy=default.target

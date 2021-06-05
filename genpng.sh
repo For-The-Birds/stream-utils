@@ -53,6 +53,6 @@ while true; do
 
     mv info.png overlay.png
 
-    sleep 10
+    sleep 20
 done
 
