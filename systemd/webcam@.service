@@ -3,7 +3,7 @@ Description=webcam mpegts %I
 StartLimitIntervalSec=0
 
 [Service]
-ExecStart=ffmpeg -hide_banner -nostdin -loglevel warning -f v4l2 -framerate 15 -video_size 640x480 -i /dev/video0 -c:v libx264 -preset ultrafast -crf 19 -tune zerolatency -map 0 -f mpegts udp://%i
+ExecStart=ffmpeg -hide_banner  -f v4l2 -framerate 15 -video_size 640x480 -i /dev/video0 -c:v libx264 -preset ultrafast -crf 19 -tune zerolatency -map 0 -f mpegts udp://%i:3322 -map 0 -f mpegts udp://%i:3332
 Restart=always
 
 [Install]

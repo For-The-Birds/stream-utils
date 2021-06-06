@@ -31,7 +31,7 @@ donations_format() {
 while true; do
     t=$(curl -s livingroom.local/sensor/outside | jq '.state' | tr -d '"')
     label="$(date '+%F %R')  $t  $(lx) lux"
-    echo -e "\n$label"
+    #echo -e "\n$label"
     gm convert -background none -font /usr/share/fonts/liberation/LiberationSerif-Regular.ttf \
         -pointsize 32 -fill 'rgba(64,64,64,100)' \
         label:"$label" info.png

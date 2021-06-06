@@ -1,31 +1,18 @@
 from datetime import datetime, timedelta
-import glob, os
-files = [f for f in glob.glob('*-at-*.mp4')]
-#print(files)
-def get_first_part(filename):
-	return filename.split(".mkv-at-")[0]
-
-def get_second_part(filename):
-	x = filename.split(".mkv-at-")[1]
-	return x[:len(x)-4]
-
-gfp = get_first_part
-gsp = get_second_part
-
-def get_date(filename):
-	part = gfp(filename)
-	date = datetime.strptime(part, "%Y-%m-%d_%H:%M")
-	return date
-
-def get_length(filename):
-	part = gsp(filename)
-	millis = part[len(part)-3:]
-	date = datetime.strptime(part, "%H:%M:%S.%f")
-	delta = timedelta(minutes=date.minute, hours=date.hour)
-	return delta
-def generate_final(a, date):
-	return f"{date.strftime('%Y-%m-%d_%H:%M')}.mp4"
+import glob, os, sys, re
+files = [f for f in glob.glob(sys.argv[1])]
+#files = [f for f in glob.glob('*-at-*.mp4')]
 
 for file in files:
-	length = get_length(file)
-	os.rename(file, generate_final(file, get_date(file) + length))
+    # reference : 2021-06-05_03:47.mkv-at-04:13:45.547.mp4
+    m = re.findall(r'([0-9-_:]+).*-at-([0-9:.]+)\.mp4', file)
+    m1 = str(m[0][0]).rstrip('_')
+    m2 = m[0][1]
+    d = datetime.strptime(m1, "%Y-%m-%d_%H:%M")
+    l = datetime.strptime(m2, "%H:%M:%S.%f")
+    delta = timedelta(minutes=l.minute, hours=l.hour)
+    s = d + delta
+    newname = s.strftime('%Y-%m-%d_%H:%M') + ".mp4"
+    #print(file, m1, m2, s, newname)
+    print(file, newname)
+    #os.rename(file, newname)
