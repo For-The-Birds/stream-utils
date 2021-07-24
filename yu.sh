@@ -1,5 +1,5 @@
 
-set -x
+set -xv
 cd /mnt/birds/pivid
 
 ls -1 ????-??-??_??:??.mp4 | while read f ; do
@@ -15,7 +15,7 @@ ls -1 ????-??-??_??:??.mp4 | while read f ; do
         --license=creativeCommon \
         --location=latitude=55.61,longitude=37.57 \
         --recording-date=$diso \
-        "$f"
+        "$f" || break
     echo "$f" >>.yu.done
     sleep 10m
 done
