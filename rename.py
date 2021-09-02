@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import glob, os, sys, re, fileinput, subprocess
 # ls -1 *-at-*.mp4 | grep -v adelay | python rename.py
 # time ls -1 *-at-*.mp4 | egrep -v adelay | python ~/src/yekm/stream-utils/rename.py
-ADELAY_PER_HOUR = 2.5
+ADELAY_PER_HOUR = 2.6
 
 for f in fileinput.input():
     f = f.strip()
@@ -18,13 +18,8 @@ for f in fileinput.input():
     #os.rename(f, newname)
     nhours = at.hour + at.minute/60
     print(nhours, newname)
-    
-    ffmpegcmd = ('ffmpeg -hide_banner -nostdin -y '
-            '-i "{0}" -af adelay={1},loudnorm -to '
-            '$(ffprobe -v error -select_streams v:0 -show_entries stream=duration '
-                '-of default=noprint_wrappers=1:nokey=1 -sexagesimal "{0}") '
-            '-c:v copy -c:a libopus '
-            '"/mnt/nvme/pivid/{2}"').format(
+
+    ffmpegcmd = ('bash slice_fixup.sh "{0}" "{1}" "{2}"').format(
         f, int(nhours*ADELAY_PER_HOUR*1000), newname)
     print(ffmpegcmd)
     subprocess.run(ffmpegcmd, shell=True, check=True)

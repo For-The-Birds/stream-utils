@@ -4,6 +4,7 @@ After=network-online.target
 StartLimitIntervalSec=0
 
 [Service]
+Environment=ASSERVICE=1
 ExecStart=/bin/bash %i
 KillSignal=SIGINT
 WorkingDirectory=/src/yekm/stream-utils
