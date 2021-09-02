@@ -27,7 +27,7 @@ while read msg; do
         systemctl  --user stop streamutil@gaterec.sh
 
         #systemctl --user stop streamutil@savertsp.sh.service
-        systemctl --user restart streamutil@yu.sh.service
+        #systemctl --user restart streamutil@yu.sh.service
 
         #avconcat &
         ;;
@@ -44,7 +44,7 @@ while read msg; do
         systemctl --user restart streamutil@twitch.sh.service
 
         #systemctl --user restart streamutil@savertsp.sh.service
-        systemctl --user stop streamutil@yu.sh.service
+        #systemctl --user stop streamutil@yu.sh.service
         ;;
     esac
 done < <(mosquitto_sub -h homeassistant.local -t local/birdfeeder/status)

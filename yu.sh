@@ -28,4 +28,6 @@ echo "$list" | while read f ; do
     sleep 10m
 done
 
+[[ $? == 0 ]] && echo "all $count done"
+
 sleep 1h
