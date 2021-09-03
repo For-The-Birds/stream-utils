@@ -18,33 +18,27 @@ avconcat() {
 while read msg; do
     echo "mqtt message: $msg" #| tee .status
     case "$msg" in
+    off)
+        systemctl --user stop streamutil@savepi.sh.service
+        #systemctl --user stop streamutil@savepi2.sh.service
+        #systemctl --user stop streamutil@savertsp.sh.service
+        ;;
+    on)
+        systemctl --user restart streamutil@savepi.sh.service
+        #systemctl --user restart streamutil@savepi2.sh.service
+        #systemctl --user restart streamutil@savertsp.sh.service
+        ;;
+    online)
+        systemctl --user restart streamutil@gaterec.sh
+        systemctl --user restart streamutil@audio_rec.sh.service
+        systemctl --user restart streamutil@genpng.sh.service
+        systemctl --user restart streamutil@twitch.sh.service
+        ;;
     offline)
         systemctl --user stop streamutil@twitch.sh.service
         systemctl --user stop streamutil@genpng.sh.service
-        #systemctl --user stop streamutil@audio_rec.sh.service
-        systemctl --user stop streamutil@savepi.sh.service
-        #systemctl --user stop streamutil@savepi2.sh.service
-        systemctl  --user stop streamutil@gaterec.sh
-
-        #systemctl --user stop streamutil@savertsp.sh.service
-        #systemctl --user restart streamutil@yu.sh.service
-
-        #avconcat &
-        ;;
-    online)
-        #[ -s /mnt/birds/audio/$(<.date).opus ] && avconcat
-
-        #date +%F_%R >.date
-
-        systemctl  --user restart streamutil@gaterec.sh
-        systemctl --user restart streamutil@savepi.sh.service
-        #systemctl --user restart streamutil@audio_rec.sh.service
-        #systemctl --user restart streamutil@savepi2.sh.service
-        systemctl --user restart streamutil@genpng.sh.service
-        systemctl --user restart streamutil@twitch.sh.service
-
-        #systemctl --user restart streamutil@savertsp.sh.service
-        #systemctl --user stop streamutil@yu.sh.service
+        systemctl --user stop streamutil@gaterec.sh
+        systemctl --user stop streamutil@audio_rec.sh.service
         ;;
     esac
 done < <(mosquitto_sub -h homeassistant.local -t local/birdfeeder/status)
