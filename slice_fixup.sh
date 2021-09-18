@@ -2,7 +2,8 @@
 
 set -vxeu
 
-o="/mnt/nvme/pivid/$3"
+#o="/mnt/nvme/pivid/$3"
+o="./$3"
 
 ffmpeg -hide_banner -nostdin -y -loglevel warning \
     -i "$1" \
@@ -24,3 +25,4 @@ ffmpeg -hide_banner -nostdin -y -loglevel warning \
 
 mv -v $o.norm.mp4 $o
 rm -v $o.wav $o.gain.wav
+mv -v "$1" .trash/
