@@ -41,5 +41,4 @@ while read msg; do
         systemctl --user stop streamutil@audio_rec.sh.service
         ;;
     esac
-done < <(mosquitto_sub -h homeassistant.local -t local/birdfeeder/status)
-
+done < <(mosquitto_sub -h mqtt.local $(<.mqttcreds) -t local/birdfeeder/status)

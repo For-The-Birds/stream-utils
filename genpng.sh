@@ -1,5 +1,13 @@
 set -uv
 
+function get_state {
+    curl -s -X GET \
+        -H "Authorization: Bearer $(<.ha.token)" \
+        -H "Content-Type: application/json" \
+        http://homeassistant.local:8123/api/states/input_number.$1 | \
+    jq -r '.state'
+}
+
 lx() {
     printf "%.2f" $(curl -s livingroom.local/sensor/livingroom_illuminance | jq '.value') || true
 }
@@ -9,7 +17,7 @@ seconds_file_modified() {
 }
 
 donations() {
-    token=$(cat .token.json | jq '.access_token' | tr -d \")
+    token=$(cat .token.json | jq -r '.access_token')
 
     curl -s --max-time 4 -X GET https://www.donationalerts.com/api/v1/alerts/donations \
         -H "Authorization: Bearer $token"
@@ -18,10 +26,10 @@ donations() {
 donations_format() {
     d=$(donations)
     (( $? )) && return 1
-    username=$(jq '.data[0].username' <<< $d | tr -d \")
-    message=$(jq '.data[0].message' <<< $d)
-    amount=$(jq '.data[0].amount' <<< $d)
-    currency=$(jq '.data[0].currency' <<< $d | tr -d \")
+    username=$(jq -r '.data[0].username' <<< $d)
+    message=$(jq -r '.data[0].message' <<< $d)
+    amount=$(jq -r '.data[0].amount' <<< $d)
+    currency=$(jq -r '.data[0].currency' <<< $d)
 
     echo "$message"
     echo
@@ -29,8 +37,8 @@ donations_format() {
 }
 
 while true; do
-    t=$(curl -s livingroom.local/sensor/outside | jq '.state' | tr -d '"')
-    label="$(date '+%F %R')  $t  $(lx) lux"
+    t=$(curl -s livingroom.local/sensor/outside | jq -r '.state')
+    label="$(date '+%F %R')  $t  $(lx) lux  ISO:$(get_state iso) EV:$(get_state ev)"
     #echo -e "\n$label"
     gm convert -background none -font /usr/share/fonts/liberation/LiberationSerif-Regular.ttf \
         -pointsize 32 -fill 'rgba(64,64,64,100)' \
@@ -53,6 +61,6 @@ while true; do
 
     mv info.png overlay.png
 
-    sleep 20
+    sleep 10
 done
 

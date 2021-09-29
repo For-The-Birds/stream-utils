@@ -2,14 +2,19 @@
 
 set -evx
 
-ev=$(curl -s -X GET -H "Authorization: Bearer $(<.ha.token)" -H "Content-Type: application/json" http://homeassistant:8123/api/states/input_number.ev)
+function get_n {
+    v=$(curl -s -X GET -H "Authorization: Bearer $(<.ha.token)" -H "Content-Type: application/json" http://homeassistant:8123/api/states/input_number.$1)
 
-ev=$( echo "$ev" | jq '.state' | tr -d '"' )
-ev=$(printf '%.0f' "$ev")
+    v=$( echo "$v" | jq '.state' | tr -d '"' )
+    v=$(printf '%.0f' "$v")
+    echo $v
+}
 
 /opt/vc/bin/raspivid \
     -v -n -t 0 -w 1280 -h 720 \
-    -fps 49 -g 10 -b $(( 2 << 23 )) \
-    --ISO 100 -ev $ev -ex fixedfps --metering backlit \
-    -l -ih -stm -a 4 -a 8 -ae 8,bbbbbb,ffffff -drc low \
-    -o tcp://0.0.0.0:3333/
+    -fps 50 -g 10 -b $(( 2 << 23 )) \
+    --ISO $(get_n iso) -ev $(get_n ev) -ex fixedfps --metering backlit \
+    -ih -stm \
+    -a 4 -a 8 -ae 8,bbbbbb,ffffff -drc low \
+    -l -o tcp://0.0.0.0:3333/
+
