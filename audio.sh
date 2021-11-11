@@ -16,8 +16,8 @@ process_audio() {
     opusenc --quiet --bitrate 128 --artist birds --date $(date +%F) $gain $opus
     o=${opus%%.wav.opus}
     ln -s $opus $o
-    sendPhoto $ch_audio $png "$bn"
-    sendAudio $ch_audio $o
+    sendPhoto $ch_audio $png "$bn" >/dev/null
+    sendAudio $ch_audio $o >/dev/null
     #tglog $ch_audio "$(sox -M -c 1 $wav -c 1 $gain -n stats |& grep dB)"
     flac --silent --best --delete-input-file -o $flac $wav
     rm $o $png $gain

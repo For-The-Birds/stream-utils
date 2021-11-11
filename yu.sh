@@ -2,7 +2,7 @@
 #set -xv
 cd /mnt/birds/pivid
 
-list=$(ls -1 ????-??-??_??:??.mp4)
+list=$(ls -1 ????-??-??_??:??.mp4 ????-??-??.mp4)
 count=$(echo "$list" | wc -l)
 c=0
 #left=$(sort <(cat .yu.done) <(echo "$list") | uniq -u)
@@ -25,9 +25,9 @@ echo "$list" | while read f ; do
         --recording-date=$diso \
         "$f" || break
     echo "$f" >>.yu.done
-    sleep 10m
+    sleep 1m
 done
 
 [[ $? == 0 ]] && echo "all $count done"
 
-sleep 1h
+#sleep 1h

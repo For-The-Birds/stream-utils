@@ -17,6 +17,10 @@ function make_ranges {
 
 fps=50
 
+bn=$(basename "$2")
+bn=${bn%%.???}
+mkdir "$bn"
+
 cat "$1" | \
     jq '.[] | select(.objects[0].confidence > 0.82) | .frame_id' | \
     make_ranges 100 | \
@@ -25,5 +29,5 @@ cat "$1" | \
             -ss $(bc -l <<< "$start/$fps-3") \
             -to $(bc -l <<< "$end/$fps+0.5") \
             -i "$2" \
-            -c:v copy -c:a copy autocut/$start-$end.mp4
+            -c:v copy -c:a copy "$bn/$start-$end.mp4"
     done
