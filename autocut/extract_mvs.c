@@ -21,9 +21,35 @@
  * THE SOFTWARE.
  */
 
+// gcc extract_mvs.c -o extract_mvs -lavcodec -lavutil -lavformat -lm
+
 #include <libavutil/motion_vector.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+
+/*
+#include <time.h>
+
+unsigned count = 0;
+struct timespec start, stop;
+
+double ts_diff(struct timespec *ts1, struct timespec *ts2) {
+    return ts1->tv_sec - ts2->tv_sec + (ts1->tv_nsec - ts2->tv_nsec) / 1e9;
+}
+
+void tstart(unsigned c) {
+    count = c;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+}
+
+double tfinish(unsigned c) {
+    clock_gettime(CLOCK_MONOTONIC, &stop);
+    unsigned d = c - count;
+    double sps = d/ts_diff(&stop, &start); // samples per second
+    tstart(c);
+    return sps;
+}
+*/
 
 static AVFormatContext *fmt_ctx = NULL;
 static AVCodecContext *video_dec_ctx = NULL;
@@ -32,17 +58,36 @@ static const char *src_filename = NULL;
 
 static int video_stream_idx = -1;
 static AVFrame *frame = NULL;
-static int video_frame_count = 0;
+static int frame_count = 0;
+
+int64_t old_pts = 0, old_i = 0;
+double old_sum = 0, old_area = 0;
 
 static int decode_packet(const AVPacket *pkt)
 {
-    int ret = avcodec_send_packet(video_dec_ctx, pkt);
+    const float fps = (float)(video_dec_ctx->framerate.num)/video_dec_ctx->framerate.den;
+    const float tb = (float)(video_dec_ctx->time_base.num)/video_dec_ctx->time_base.den;
+    int ret;
+#if 0
+    do {
+        ret = avcodec_send_packet(video_dec_ctx, pkt);
+    } while (ret != AVERROR(EAGAIN) || ret > 0);
+    if (ret < 0 && ret != AVERROR(EAGAIN)) {
+        fprintf(stderr, "Error during decoding\n");
+        return ret;
+    }
+#else
+    ret = avcodec_send_packet(video_dec_ctx, pkt);
     if (ret < 0) {
         fprintf(stderr, "Error while sending a packet to the decoder: %s\n", av_err2str(ret));
         return ret;
     }
+#endif
 
-    while (ret >= 0)  {
+    //tstart(frame_count);
+
+    while (1)  {
+//    do {
         ret = avcodec_receive_frame(video_dec_ctx, frame);
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
             break;
@@ -55,21 +100,60 @@ static int decode_packet(const AVPacket *pkt)
             int i;
             AVFrameSideData *sd;
 
-            video_frame_count++;
+            frame_count++;
+            //printf("Frame %0.9d,", frame_count);
+            //if (frame_count % 100 == 0)
+            //    printf(" fps %0.3f,", tfinish(frame_count));
+
             sd = av_frame_get_side_data(frame, AV_FRAME_DATA_MOTION_VECTORS);
             if (sd) {
                 const AVMotionVector *mvs = (const AVMotionVector *)sd->data;
+                double sum = 0, area = 0;
                 for (i = 0; i < sd->size / sizeof(*mvs); i++) {
                     const AVMotionVector *mv = &mvs[i];
+                    const int dx = mv->src_x - mv->dst_x;
+                    const int dy = mv->src_y - mv->dst_y;
+                    sum += sqrt(dx*dx + dy*dy);// * (mv->w * mv->h);
+                    area += mv->w * mv->h;
+                    /*
                     printf("%d,%2d,%2d,%2d,%4d,%4d,%4d,%4d,0x%"PRIx64"\n",
-                        video_frame_count, mv->source,
+                        frame_count, mv->source,
                         mv->w, mv->h, mv->src_x, mv->src_y,
                         mv->dst_x, mv->dst_y, mv->flags);
+                        */
+                }
+                //sum /= i;
+                if (old_pts == frame->pts) {
+                    old_sum += sum;
+                    old_area += area;
+                    old_i += i;
+                } else {
+//#define PRINTF_ALL
+#ifdef PRINTF_ALL
+                    printf("%d\t%lu\t%f\t%f\t%f\n",
+                        frame_count,
+                        old_i,
+                        old_area,
+                        old_pts/fps,
+                        old_sum);
+#else
+                    printf("%f\t%f\n",
+                        old_pts*tb*0.1,
+                        old_sum);
+#endif
+                    old_sum = sum;
+                    old_area = area;
+                    old_i = i;
+                    old_pts = frame->pts;
                 }
             }
             av_frame_unref(frame);
         }
+        //printf("\r");
+        //fflush(stdout);
     }
+    //while (ret >= 0 || ret != AVERROR(EAGAIN));
+
 
     return 0;
 }
@@ -103,6 +187,17 @@ static int open_codec_context(AVFormatContext *fmt_ctx, enum AVMediaType type)
             return ret;
         }
 
+        // set codec to automatically determine how many threads suits best for the decoding job
+        dec_ctx->thread_count = 0;
+
+        if (dec->capabilities | AV_CODEC_CAP_FRAME_THREADS)
+            dec_ctx->thread_type |= FF_THREAD_FRAME;
+        if (dec->capabilities | AV_CODEC_CAP_SLICE_THREADS)
+            dec_ctx->thread_type |= FF_THREAD_SLICE;
+        else
+            dec_ctx->thread_count = 1; //don't use multithreading
+
+        //dec_ctx->skip_frame = AVDISCARD_NONKEY;
         /* Init the video decoder */
         av_dict_set(&opts, "flags2", "+export_mvs", 0);
         ret = avcodec_open2(dec_ctx, dec, &opts);
@@ -166,7 +261,7 @@ int main(int argc, char **argv)
         goto end;
     }
 
-    printf("framenum,source,blockw,blockh,srcx,srcy,dstx,dsty,flags\n");
+    //printf("framenum,source,blockw,blockh,srcx,srcy,dstx,dsty,flags\n");
 
     /* read frames from the file */
     while (av_read_frame(fmt_ctx, pkt) >= 0) {
