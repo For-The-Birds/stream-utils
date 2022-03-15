@@ -22,11 +22,13 @@ while read msg; do
         systemctl --user stop streamutil@savepi.sh.service
         #systemctl --user stop streamutil@savepi2.sh.service
         #systemctl --user stop streamutil@savertsp.sh.service
+        systemctl --user stop streamutil@webcam-save-stream.sh.service
         ;;
     on)
         systemctl --user restart streamutil@savepi.sh.service
         #systemctl --user restart streamutil@savepi2.sh.service
         #systemctl --user restart streamutil@savertsp.sh.service
+        systemctl --user restart streamutil@webcam-save-stream.sh.service
         ;;
     online)
         systemctl --user restart streamutil@gaterec.sh

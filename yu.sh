@@ -15,7 +15,7 @@ echo "$list" | while read f ; do
     d=$(echo "$f" | cut -f1 -d. | tr _ ' ')
     diso=$(date  -d "$d" -Iseconds)
     # yay -S youtube-upload
-    ~/.local/bin/youtube-upload \
+    youtube-upload \
         --title="Birds $d" \
         -c 'Pets & Animals'\
         --tags birds,birdfeeder \
@@ -28,6 +28,6 @@ echo "$list" | while read f ; do
     sleep 1m
 done
 
-[[ $? == 0 ]] && echo "all $count done"
+[[ $? == 0 ]] && echo "$c/$count done"
 
 #sleep 1h
