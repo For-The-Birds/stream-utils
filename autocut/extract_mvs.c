@@ -21,7 +21,7 @@
  * THE SOFTWARE.
  */
 
-// gcc extract_mvs.c -o extract_mvs -lavcodec -lavutil -lavformat -lm
+// gcc -Wall extract_mvs.c -Ofast -o extract_mvs -lavcodec -lavutil -lavformat -lm
 
 #include <libavutil/motion_vector.h>
 #include <libavcodec/avcodec.h>
@@ -65,7 +65,7 @@ double old_sum = 0, old_area = 0;
 
 static int decode_packet(const AVPacket *pkt)
 {
-    const float fps = (float)(video_dec_ctx->framerate.num)/video_dec_ctx->framerate.den;
+    //const float fps = (float)(video_dec_ctx->framerate.num)/video_dec_ctx->framerate.den;
     const float tb = (float)(video_dec_ctx->time_base.num)/video_dec_ctx->time_base.den;
     int ret;
 #if 0

@@ -24,14 +24,14 @@ mkdir -p "$bn"
 
 # cat file | cut -f1 | bash autocut.sh video.mkv
 
-make_ranges 12 | \
+make_ranges 24 | \
 while read start end; do
     #[ -z "$start" ] && continue
     echo "'$start' - '$end' " `bc -l <<< "$end - $start"`
-    (( `bc -ql <<< "$end - $start < 2"` )) && continue
+    (( `bc -ql <<< "$end - $start < 4"` )) && continue
     #continue
     at=$(date -u -d @$start +"%T").0
-    ffmpeg -hide_banner -nostdin -y \
+    ffmpeg -hide_banner -nostdin -loglevel warning -y \
         -ss $(bc -l <<< "$start-2") \
         -to $(bc -l <<< "$end+2") \
         -i "$1" \

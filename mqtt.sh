@@ -20,27 +20,31 @@ while read msg; do
     case "$msg" in
     off)
         systemctl --user stop streamutil@savepi.sh.service
-        #systemctl --user stop streamutil@savepi2.sh.service
         #systemctl --user stop streamutil@savertsp.sh.service
-        systemctl --user stop streamutil@webcam-save-stream.sh.service
+        #systemctl --user stop streamutil@webcam-save-stream.sh.service
+        systemctl --user stop streamutil@gaterec.sh
+        systemctl --user stop streamutil@audio_rec.sh.service
         ;;
     on)
-        systemctl --user restart streamutil@savepi.sh.service
-        #systemctl --user restart streamutil@savepi2.sh.service
-        #systemctl --user restart streamutil@savertsp.sh.service
-        systemctl --user restart streamutil@webcam-save-stream.sh.service
-        ;;
-    online)
         systemctl --user restart streamutil@gaterec.sh
         systemctl --user restart streamutil@audio_rec.sh.service
+        systemctl --user restart streamutil@savepi.sh.service
+        #systemctl --user restart streamutil@savertsp.sh.service
+        #systemctl --user start streamutil@webcam-save-stream.sh.service
+        ;;
+    online)
         systemctl --user restart streamutil@genpng.sh.service
         systemctl --user restart streamutil@twitch.sh.service
         ;;
     offline)
         systemctl --user stop streamutil@twitch.sh.service
         systemctl --user stop streamutil@genpng.sh.service
-        systemctl --user stop streamutil@gaterec.sh
-        systemctl --user stop streamutil@audio_rec.sh.service
+        ;;
+    neston)
+        systemctl --user restart streamutil@savepi2.sh.service
+        ;;
+    nestoff)
+        systemctl --user stop streamutil@savepi2.sh.service
         ;;
     esac
 done < <(mosquitto_sub -h mqtt.local $(<.mqttcreds) -t local/birdfeeder/status)

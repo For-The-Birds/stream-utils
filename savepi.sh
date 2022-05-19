@@ -16,7 +16,7 @@ ffmpeg -y -hide_banner $ffopts -fflags +genpts+igndts -use_wallclock_as_timestam
     -map 0:0 \
         -r 50 -vsync 1 \
         -c:v copy \
-        -f mpegts udp://127.0.0.1:3334/ \
+        -f mpegts udp://127.0.0.1:3334/
 
 
 exit
