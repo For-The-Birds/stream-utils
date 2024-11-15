@@ -19,16 +19,18 @@ while read msg; do
     echo "mqtt message: $msg" #| tee .status
     case "$msg" in
     off)
-        systemctl --user stop streamutil@savepi.sh.service
+        #systemctl --user stop streamutil@savepi.sh.service
         #systemctl --user stop streamutil@savertsp.sh.service
         #systemctl --user stop streamutil@webcam-save-stream.sh.service
-        systemctl --user stop streamutil@gaterec.sh
-        systemctl --user stop streamutil@audio_rec.sh.service
+        #systemctl --user stop streamutil@gaterec.sh
+        #systemctl --user stop streamutil@audio_rec.sh.service
+        #systemctl --user restart streamutil@audio_rec.sh.service
         ;;
     on)
         systemctl --user restart streamutil@gaterec.sh
-        systemctl --user restart streamutil@audio_rec.sh.service
-        systemctl --user restart streamutil@savepi.sh.service
+        systemctl --user restart streamutil@audio.sh.service
+        #systemctl --user restart streamutil@audio_rec.sh.service
+        #systemctl --user restart streamutil@savepi.sh.service
         #systemctl --user restart streamutil@savertsp.sh.service
         #systemctl --user start streamutil@webcam-save-stream.sh.service
         ;;
@@ -47,4 +49,4 @@ while read msg; do
         systemctl --user stop streamutil@savepi2.sh.service
         ;;
     esac
-done < <(mosquitto_sub -h mqtt.local $(<.mqttcreds) -t local/birdfeeder/status)
+done < <(mosquitto_sub -h mqtt.lan $(<.mqttcreds) -t local/birdfeeder/status)

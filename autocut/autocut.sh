@@ -16,24 +16,26 @@ function make_ranges {
     echo $start $prev
 }
 
-fps=50
+#fps=50
 
 bn=$(basename "$1")
 bn=${bn%%.???}
-mkdir -p "$bn"
+o=${2:-"$bn"}
+mkdir -p "$o"
 
 # cat file | cut -f1 | bash autocut.sh video.mkv
 
-make_ranges 24 | \
+make_ranges 12 | \
 while read start end; do
+    [ -z "$start" ] && [ -z "$end" ] && continue
     #[ -z "$start" ] && continue
-    echo "'$start' - '$end' " `bc -l <<< "$end - $start"`
-    (( `bc -ql <<< "$end - $start < 4"` )) && continue
+    echo "$start - $end   delta = "$(bc -l <<< "$end - $start")
+    (( `bc -ql <<< "$end - $start < 1"` )) && continue
     #continue
     at=$(date -u -d @$start +"%T").0
     ffmpeg -hide_banner -nostdin -loglevel warning -y \
         -ss $(bc -l <<< "$start-2") \
-        -to $(bc -l <<< "$end+2") \
+        -to $(bc -l <<< "$end+4") \
         -i "$1" \
-        -c:v copy -c:a copy "$bn/$bn-at-$at.mp4"
+        -c:v copy -c:a copy "./$o/$bn-at-$at.mp4"
 done

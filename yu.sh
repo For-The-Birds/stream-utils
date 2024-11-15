@@ -2,7 +2,8 @@
 #set -xv
 cd /mnt/birds/pivid
 
-list=$(ls -1 ????-??-??_??:??.mp4 ????-??-??.mp4)
+#list=$(ls -1 ????-??-??_??:??.mp4 ????-??-??.mp4)
+list=$(ls -1 2024-??-??.mp4 | sort)
 count=$(echo "$list" | wc -l)
 c=0
 #left=$(sort <(cat .yu.done) <(echo "$list") | uniq -u)
@@ -10,8 +11,8 @@ c=0
 
 echo "$list" | while read f ; do
     (( c++ ))
-    grep "$f" .yu.done >/dev/null && continue
     echo "$c/$count $f"
+    grep "$f" .yu.done >/dev/null && continue
     d=$(echo "$f" | cut -f1 -d. | tr _ ' ')
     diso=$(date  -d "$d" -Iseconds)
     # yay -S youtube-upload

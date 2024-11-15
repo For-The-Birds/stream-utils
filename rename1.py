@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import datetime, glob, os, sys, re, fileinput, subprocess
 # time ls -1 *-at-*.mp4 | parallel python rename1.py
 ADELAY_PER_HOUR = 2.6

@@ -1,10 +1,32 @@
 
 source common.sh
 
+ffmpeg -y -hide_banner -nostdin -loglevel info \
+    -fflags +discardcorrupt+genpts \
+    -r 50 -i tcp://alarmpi4.lan:3333 -fps_mode 0 \
+    -c:v copy -bsf:v dts2pts -r 50 \
+    /mnt/birds/pivid/$(date +%F_%R).mkv \
+    -map 0:0 -r 50 -fps_mode 0 \
+    -c:v copy -bsf:v dts2pts \
+    -f mpegts udp://127.0.0.1:3333/
+
+exit
+
+ffmpeg -y -hide_banner -nostdin -loglevel warning \
+    -probesize 32M -thread_queue_size 131072 \
+    -r 50 -i tcp://alarmpi4.lan:3333 \
+    -f jack -thread_queue_size 131072 -channels 1 -i ffmpeg_birds \
+    -map 0:0 -map 1:0 -r 50 -fps_mode 0 \
+    -c:v copy -c:a libopus -b:a 128k \
+    /mnt/birds/pivid/$(date +%F_%R).mkv \
+    -map 0:0 -r 50 -fps_mode 0 -c:v copy -f mpegts udp://127.0.0.1:3333/
+
+
+exit
+
 ffmpeg -y -hide_banner $ffopts -fflags +genpts+igndts -use_wallclock_as_timestamps 1 \
-    -probesize 32M -thread_queue_size $tqs -i tcp://alarmpi4.local:3333 \
+    -probesize 32M -thread_queue_size $tqs -i tcp://alarmpi4.lan:3333 \
     -f jack -thread_queue_size $tqs -ac 1 -itsoffset 1 -i ffmpeg_birds \
-    \
     -map 0:0 -map 1:0 \
         -r 50 -vsync 1 \
         -c:v copy -c:a libopus -b:a 128k \

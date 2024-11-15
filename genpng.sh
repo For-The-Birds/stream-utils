@@ -4,12 +4,12 @@ function get_state {
     curl -s -X GET \
         -H "Authorization: Bearer $(<.ha.token)" \
         -H "Content-Type: application/json" \
-        http://homeassistant.local:8123/api/states/input_number.$1 | \
+        http://homeassistant.lan:8123/api/states/input_number.$1 | \
     jq -r '.state'
 }
 
 lx() {
-    printf "%.2f" $(curl -s livingroom.local/sensor/livingroom_illuminance | jq '.value') || true
+    printf "%.2f" $(curl -s livingroom.lan/sensor/livingroom_illuminance | jq '.value') || true
 }
 
 seconds_file_modified() {
@@ -37,7 +37,7 @@ donations_format() {
 }
 
 while true; do
-    t=$(curl -s livingroom.local/sensor/outside | jq -r '.state')
+    t=$(curl -s livingroom.lan/sensor/outside | jq -r '.state')
     label="$(date '+%F %R')  $t  $(lx) lux  ISO:$(get_state iso) EV:$(get_state ev)"
     #echo -e "\n$label"
     gm convert -background none -font /usr/share/fonts/liberation/LiberationSerif-Regular.ttf \
